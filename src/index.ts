@@ -59,6 +59,23 @@ app.post('/students/enroll', async (req: Request, res: Response) => {
   }
 });
 
+app.get('/students', async (req: Request, res: Response) => {
+  try {
+    const result = await query(`
+      SELECT s.id, s.first_name, s.last_name, s.date_of_birth, 
+             e.academic_year, e.grade_level, e.enrolled_at as created_at
+      FROM students s
+      JOIN enrollments e ON s.id = e.student_id
+      ORDER BY e.enrolled_at DESC
+      LIMIT 10
+    `);
+    res.status(200).json({ students: result.rows });
+  } catch (error) {
+    console.error('Erro ao buscar alunos:', error);
+    res.status(500).json({ error: 'Erro ao buscar dados dos alunos.' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`[academic-service] Servidor a correr na porta ${PORT}`);
 });
